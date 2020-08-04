@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:defaultDuration="2000">
+
+    <ConstraintSet android:id="@+id/id_start">
+        <Constraint
+            android:id="@+id/bt_start"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="50dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/id_end">
+        <Constraint
+            android:id="@+id/bt_start"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </ConstraintSet>
+
+    <Transition
+        app:constraintSetEnd="@id/id_end"
+        app:constraintSetStart="@+id/id_start">
+        <KeyFrameSet>
+            <KeyPosition
+                app:framePosition="25"
+                app:keyPositionType="pathRelative"
+                app:motionTarget="@id/bt_start"
+                app:percentHeight="1.5"
+                app:percentWidth="1.5"
+                app:percentX="0.25"
+                app:percentY="0.1" />
+            <KeyPosition
+                app:framePosition="75"
+                app:keyPositionType="pathRelative"
+                app:motionTarget="@id/bt_start"
+                app:percentHeight="0.5"
+                app:percentWidth="0.5"
+                app:percentX="0.75"
+                app:percentY="-0.1" />
+
+        </KeyFrameSet>
+        <OnClick
+            app:clickAction="toggle"
+            app:targetId="@id/bt_start" />
+    </Transition>
+
+</MotionScene>
