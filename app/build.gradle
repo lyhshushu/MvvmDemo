@@ -48,6 +48,11 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta8'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
 
+    //liveData
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
+    //Room
+    implementation 'androidx.room:room-runtime:2.1.0'
+    kapt "androidx.room:room-compiler:2.1.0"
+
 
 }

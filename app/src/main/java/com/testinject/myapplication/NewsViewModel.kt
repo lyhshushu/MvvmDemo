@@ -2,9 +2,11 @@ package com.testinject.myapplication
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.testinject.myapplication.Repository.getUser
 
-class NewsViewModel(timeCount: Int) : ViewModel() {
+class NewsViewModel(timeCount: Int, saveNetString: String) : ViewModel() {
 
     private val mModel by lazy {
         NewsModel()
@@ -14,6 +16,17 @@ class NewsViewModel(timeCount: Int) : ViewModel() {
     val liveData: LiveData<String>
         get() = _liveData
 
+    val user: LiveData<User>
+        get() = Transformations.switchMap(userLiveData) { userLiveData ->
+            Repository.getUser(userLiveData.firstName)
+        }
+
+    private val userLiveData = MutableLiveData<User>()
+
+
+    fun getUser(userId: String) {
+        userLiveData.value = Repository.getUser(userId).value
+    }
 
     private val _time = MutableLiveData<Int>()
 
@@ -21,7 +34,7 @@ class NewsViewModel(timeCount: Int) : ViewModel() {
 
     init {
         _time.value = timeCount
-        _liveData.value = mModel.loadDataFromNet() + _time.value
+        _liveData.value = saveNetString
     }
 
     fun plusTime() {

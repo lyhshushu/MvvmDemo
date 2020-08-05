@@ -9,6 +9,11 @@ class NewsModel {
     }
 
     fun changeData() {
-        netString = "have changed"
+        netString = if (netString == "this is data from model") {
+            "have changed"
+        } else {
+            "this is data from model"
+        }
     }
+
 }

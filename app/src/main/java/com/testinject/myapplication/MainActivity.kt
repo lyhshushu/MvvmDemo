@@ -29,17 +29,18 @@ class MainActivity : AppCompatActivity() {
 //        editText = findViewById(R.id.ev)
 //        textView = findViewById(R.id.tv)
 
-        //不可新建，viewmodel拥有独立的生命周期
+        //不可新建，viewModel拥有独立的生命周期
         sp = getPreferences(Context.MODE_PRIVATE)
         val time = sp.getInt("time_count", 0)
+        val netString = sp.getString("net_string", "")
         lifecycle.addObserver(MyObserve(lifecycle))
 
         newsVm =
-            ViewModelProviders.of(this, NewsViewModelFactory(time)).get(NewsViewModel::class.java)
+            ViewModelProviders.of(this, NewsViewModelFactory(time, netString.toString()))
+                .get(NewsViewModel::class.java)
 
         tv.setOnClickListener {
             newsVm.plusTime();
-
             Toast.makeText(this, "jjj", Toast.LENGTH_SHORT).show()
         }
         bt_next.setOnClickListener {
@@ -47,9 +48,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent);
         }
         clearBtn.setOnClickListener {
-            newsVm.clear()
-
+//            newsVm.clear()
+            val userId = (0..10000).random().toString()
+            newsVm.getUser(userId)
         }
+
         initLiveData()
         println(getViewId(ev))
         ev.hint = getViewId(ev)
@@ -64,18 +67,15 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initLiveData() {
+
+        newsVm.user.observe(this) { user ->
+            tv.text = user.firstName
+        }
+
         newsVm.liveData.observe(this) { liveData ->
             tv.text = liveData
         }
 
-    }
-
-    override fun onStart() {
-        super.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
     }
 
     override fun onDestroy() {
@@ -86,6 +86,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         sp.edit {
             putInt("time_count", newsVm.time.value ?: 1)
+            putString("net_string", newsVm.liveData.value ?: "")
         }
         super.onPause()
     }
