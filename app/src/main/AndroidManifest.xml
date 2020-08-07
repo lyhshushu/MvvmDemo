@@ -29,6 +29,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+        <service
+            android:name=".aidlinterface.MyService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.text.getdata.data" />
+            </intent-filter>
+        </service>
 
     </application>
 
