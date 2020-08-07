@@ -1,8 +1,10 @@
 package com.testinject.myapplication
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 
@@ -11,7 +13,12 @@ import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import com.testinject.myapplication.room.UserDataBase
+import com.testinject.myapplication.workmanager.SimpleWorker
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlin.concurrent.thread
 
 
 const val word: String = "all place use"
@@ -21,13 +28,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var newsVm: NewsViewModel
     private lateinit var sp: SharedPreferences
 
+    private lateinit var componentName1111: ComponentName
+    private lateinit var componentNameDefault: ComponentName
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        editText = findViewById(R.id.ev)
-//        textView = findViewById(R.id.tv)
+        var packageName = packageName
+        componentName1111 = ComponentName(this, "$packageName.MainActivity1111")
+        componentNameDefault = ComponentName(this, "$packageName.MainActivity")
+
+        val userDao = UserDataBase.getDatabase(this).userDao();
+        val user1 = User("liu", "shushu", 22)
+        val user2 = User("zhuang", "dandan", 22)
+
 
         //不可新建，viewModel拥有独立的生命周期
         sp = getPreferences(Context.MODE_PRIVATE)
@@ -40,7 +56,8 @@ class MainActivity : AppCompatActivity() {
                 .get(NewsViewModel::class.java)
 
         tv.setOnClickListener {
-            newsVm.plusTime();
+            onChangeIConTo1111()
+            newsVm.plusTime()
             Toast.makeText(this, "jjj", Toast.LENGTH_SHORT).show()
         }
         bt_next.setOnClickListener {
@@ -48,26 +65,53 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent);
         }
         clearBtn.setOnClickListener {
-//            newsVm.clear()
+            onChangeIconToDefault()
+            newsVm.clear()
+        }
+        getUserBtn.setOnClickListener {
             val userId = (0..10000).random().toString()
             newsVm.getUser(userId)
         }
-
+        addUserBtn.setOnClickListener {
+            thread {
+                user1.id = userDao.insertUser(user1)
+                user2.id = userDao.insertUser(user2)
+            }
+        }
+        updateUserBtn.setOnClickListener {
+            thread {
+                user1.age = 1;
+                userDao.updateUser(user1)
+            }
+        }
+        deleteUserBtn.setOnClickListener {
+            thread {
+                userDao.deleteUserByLastName("dandan")
+            }
+        }
+        queryUserBtn.setOnClickListener {
+            thread {
+                for (user in userDao.loadAllUser()) {
+                    println(user.toString())
+                }
+            }
+        }
+        backWorkBtn.setOnClickListener {
+            val request = OneTimeWorkRequest.Builder(SimpleWorker::class.java).build()
+            WorkManager.getInstance(this).enqueue(request)
+        }
         initLiveData()
         println(getViewId(ev))
         ev.hint = getViewId(ev)
         tv.text = word
     }
 
-
     private fun getViewId(view: View): String {
         println("id is" + view.id)
         return "id is" + view.id
     }
 
-
     private fun initLiveData() {
-
         newsVm.user.observe(this) { user ->
             tv.text = user.firstName
         }
@@ -90,6 +134,33 @@ class MainActivity : AppCompatActivity() {
         }
         super.onPause()
     }
+
+    fun onChangeIConTo1111() {
+        enableComponent(componentName1111)
+        disableComponent(componentNameDefault)
+    }
+
+    fun onChangeIconToDefault() {
+        enableComponent(componentNameDefault)
+        disableComponent(componentName1111)
+    }
+
+    fun enableComponent(componentName: ComponentName) {
+        packageManager.setComponentEnabledSetting(
+            componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
+        )
+    }
+
+    fun disableComponent(componentName: ComponentName) {
+        packageManager.setComponentEnabledSetting(
+            componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
+    }
+
 
 }
 

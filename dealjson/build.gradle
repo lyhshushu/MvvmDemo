@@ -1,0 +1,15 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    //转换json  挂代理的小心，即使关闭代理可能也会报错。关闭代理后重启AS，估计是AS3.0的bug
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"
