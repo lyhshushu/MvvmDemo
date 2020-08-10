@@ -7,17 +7,21 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
+import androidx.work.BackoffPolicy
 import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.testinject.myapplication.room.UserDataBase
 import com.testinject.myapplication.workmanager.SimpleWorker
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 
@@ -97,8 +101,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
         backWorkBtn.setOnClickListener {
-            val request = OneTimeWorkRequest.Builder(SimpleWorker::class.java).build()
+            val request = OneTimeWorkRequest.Builder(SimpleWorker::class.java)
+                .addTag("simple")
+                //??不能小于10s
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+                .build()
             WorkManager.getInstance(this).enqueue(request)
+            WorkManager.getInstance(this).getWorkInfoByIdLiveData(request.id)
+                .observe(this) { workInfo ->
+                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        Log.d("MainActivity", "do work success")
+                    } else if (workInfo.state == WorkInfo.State.FAILED) {
+                        Log.d("MainActivity", "do work failed")
+                    }
+                }
         }
         initLiveData()
         println(getViewId(ev))
