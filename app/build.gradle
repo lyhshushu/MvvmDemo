@@ -50,6 +50,9 @@ dependencies {
 
     //liveData
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
+    //liveData lifecycleOwner
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0-alpha03"
+
     //Room
     implementation 'androidx.room:room-runtime:2.1.0'
     kapt "androidx.room:room-compiler:2.1.0"

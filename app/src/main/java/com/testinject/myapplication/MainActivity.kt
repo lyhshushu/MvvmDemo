@@ -22,25 +22,25 @@ import com.testinject.myapplication.workmanager.SimpleWorker
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
 
-
+//全局
 const val word: String = "all place use"
 
+//添加CoroutineScope
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private lateinit var newsVm: NewsViewModel
     private lateinit var sp: SharedPreferences
-
     private lateinit var componentName1111: ComponentName
     private lateinit var componentNameDefault: ComponentName
+
+    //一般定义方法
     private val dataScope = CoroutineScope(Dispatchers.IO)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         var packageName = packageName
         componentName1111 = ComponentName(this, "$packageName.MainActivity1111")
         componentNameDefault = ComponentName(this, "$packageName.MainActivity")
@@ -187,17 +187,17 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         super.onPause()
     }
 
-    fun onChangeIConTo1111() {
+    private fun onChangeIConTo1111() {
         enableComponent(componentName1111)
         disableComponent(componentNameDefault)
     }
 
-    fun onChangeIconToDefault() {
+    private fun onChangeIconToDefault() {
         enableComponent(componentNameDefault)
         disableComponent(componentName1111)
     }
 
-    fun enableComponent(componentName: ComponentName) {
+    private fun enableComponent(componentName: ComponentName) {
         packageManager.setComponentEnabledSetting(
             componentName,
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
@@ -205,7 +205,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         )
     }
 
-    fun disableComponent(componentName: ComponentName) {
+    private fun disableComponent(componentName: ComponentName) {
         packageManager.setComponentEnabledSetting(
             componentName,
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
