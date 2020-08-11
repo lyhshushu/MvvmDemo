@@ -12,8 +12,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.edit
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.observe
+import androidx.lifecycle.*
 import androidx.work.BackoffPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
@@ -21,19 +20,21 @@ import androidx.work.WorkManager
 import com.testinject.myapplication.room.UserDataBase
 import com.testinject.myapplication.workmanager.SimpleWorker
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 
 const val word: String = "all place use"
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private lateinit var newsVm: NewsViewModel
     private lateinit var sp: SharedPreferences
 
     private lateinit var componentName1111: ComponentName
     private lateinit var componentNameDefault: ComponentName
+    private val dataScope = CoroutineScope(Dispatchers.IO)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +55,6 @@ class MainActivity : AppCompatActivity() {
         val time = sp.getInt("time_count", 0)
         val netString = sp.getString("net_string", "")
         lifecycle.addObserver(MyObserve(lifecycle))
-
         newsVm =
             ViewModelProviders.of(this, NewsViewModelFactory(time, netString.toString()))
                 .get(NewsViewModel::class.java)
@@ -77,26 +77,36 @@ class MainActivity : AppCompatActivity() {
             newsVm.getUser(userId)
         }
         addUserBtn.setOnClickListener {
-            thread {
-                user1.id = userDao.insertUser(user1)
-                user2.id = userDao.insertUser(user2)
+            //只是测试作用，Room中已经拥有自己的调度器，不应再使用
+            launch {
+                withContext(Dispatchers.IO) {
+                    user1.id = userDao.insertUser(user1)
+                    user2.id = userDao.insertUser(user2)
+                }
+
             }
         }
         updateUserBtn.setOnClickListener {
-            thread {
-                user1.age = 1;
-                userDao.updateUser(user1)
+            launch {
+                withContext(Dispatchers.IO) {
+                    user1.age = 1;
+                    userDao.updateUser(user1)
+                }
             }
         }
         deleteUserBtn.setOnClickListener {
-            thread {
-                userDao.deleteUserByLastName("dandan")
+            launch {
+                withContext(Dispatchers.IO) {
+                    userDao.deleteUserByLastName("dandan")
+                }
             }
         }
         queryUserBtn.setOnClickListener {
-            thread {
-                for (user in userDao.loadAllUser()) {
-                    println(user.toString())
+            launch {
+                withContext(Dispatchers.IO) {
+                    for (user in userDao.loadAllUser()) {
+                        println(user.toString())
+                    }
                 }
             }
         }
@@ -120,6 +130,32 @@ class MainActivity : AppCompatActivity() {
         println(getViewId(ev))
         ev.hint = getViewId(ev)
         tv.text = word
+
+//        比对性能
+//        val start = System.currentTimeMillis()
+//        runBlocking {
+//            repeat(100000) {
+//                launch {
+//                    println(it)
+//                }
+//            }
+//
+//        }
+//        val end = System.currentTimeMillis()
+//        println((end - start).toString() + "time")
+//
+//        thread {
+//            repeat(100000) {
+//                println(it)
+//            }
+//        }
+//        val end1 = System.currentTimeMillis()
+//        println((end1 - start).toString() + "hhhh")
+
+
+        GlobalScope.launch(Dispatchers.Default) {
+            Log.d("MainActivity", Thread.currentThread().name)
+        }
     }
 
     private fun getViewId(view: View): String {
@@ -131,16 +167,16 @@ class MainActivity : AppCompatActivity() {
         newsVm.user.observe(this) { user ->
             tv.text = user.firstName
         }
-
         newsVm.liveData.observe(this) { liveData ->
             tv.text = liveData
         }
-
     }
 
     override fun onDestroy() {
         println("is destory")
         super.onDestroy()
+        //cancel 协程
+        cancel()
     }
 
     override fun onPause() {
@@ -176,7 +212,6 @@ class MainActivity : AppCompatActivity() {
             PackageManager.DONT_KILL_APP
         )
     }
-
 
 }
 

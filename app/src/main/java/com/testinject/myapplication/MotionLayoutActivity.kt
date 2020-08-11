@@ -84,7 +84,7 @@ class MotionLayoutActivity : AppCompatActivity() {
             //得到view的ListenerInfo对象
             val getListenerInfo = View::class.java.getDeclaredMethod("getListenerInfo")
             getListenerInfo.isAccessible = true
-            val listenerInfo: Object = getListenerInfo.invoke(v) as Object
+            val listenerInfo = getListenerInfo.invoke(v)
             //得到原始的OnClickListener对象
             val listenerClazz = Class.forName("android.view.View\$ListenerInfo")
             val mOnClickListener = listenerClazz.getDeclaredField("mOnClickListener")
