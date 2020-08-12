@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_background"
+        android:shortcutDisabledMessage="@string/writedaily_disabled"
+        android:shortcutId="writedailyid"
+        android:shortcutLongLabel="@string/writedaily"
+        android:shortcutShortLabel="@string/writedaily_short">
+
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.testinject.myapplication.MainActivity"
+            android:targetPackage="com.testinject.myapplication" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:shortcutDisabledMessage="@string/writedaily_disabled"
+        android:shortcutId="nextactId"
+        android:shortcutLongLabel="@string/nextact"
+        android:shortcutShortLabel="@string/nextact_short">
+
+        <intent
+            android:action="android.intent.action.MAIN"
+            android:targetClass="com.testinject.myapplication.MotionLayoutActivity"
+            android:targetPackage="com.testinject.myapplication" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

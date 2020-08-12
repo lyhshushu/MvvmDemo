@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="writedaily">这里是第一个act</string>
+    <string name="writedaily_short">第一</string>
+    <string name="writedaily_disabled">菜单已禁用</string>
+    <string name="nextact">第二个activity</string>
+    <string name="nextact_short">第二</string>
 </resources>

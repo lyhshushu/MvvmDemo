@@ -41,8 +41,8 @@
                 app:framePosition="75"
                 app:keyPositionType="pathRelative"
                 app:motionTarget="@id/bt_start"
-                app:percentHeight="0.5"
-                app:percentWidth="0.5"
+                app:percentHeight="0.1"
+                app:percentWidth="0.1"
                 app:percentX="0.75"
                 app:percentY="-0.1" />
 

@@ -5,14 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.util.Log
-
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import androidx.work.BackoffPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
@@ -27,12 +30,15 @@ import java.util.concurrent.TimeUnit
 const val word: String = "all place use"
 
 //添加CoroutineScope
+@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private lateinit var newsVm: NewsViewModel
     private lateinit var sp: SharedPreferences
     private lateinit var componentName1111: ComponentName
     private lateinit var componentNameDefault: ComponentName
+    private lateinit var mSystemService: ShortcutManager
+    private val mTitle = ArrayList<String>()
 
     //一般定义方法
     private val dataScope = CoroutineScope(Dispatchers.IO)
@@ -41,6 +47,15 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        mSystemService = getSystemService(ShortcutManager::class.java)
+        mTitle.add("1")
+        mTitle.add("2")
+        mTitle.add("3")
+        mTitle.add("4")
+        mTitle.add("5")
+        //最大5个，默认显示4个
+        initShortCut()
+
         var packageName = packageName
         componentName1111 = ComponentName(this, "$packageName.MainActivity1111")
         componentNameDefault = ComponentName(this, "$packageName.MainActivity")
@@ -53,7 +68,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         //不可新建，viewModel拥有独立的生命周期
         sp = getPreferences(Context.MODE_PRIVATE)
         val time = sp.getInt("time_count", 0)
-        val netString = sp.getString("net_string", "")
+        val netString = sp.getString("net_string", "hhhh")
         lifecycle.addObserver(MyObserve(lifecycle))
         newsVm =
             ViewModelProviders.of(this, NewsViewModelFactory(time, netString.toString()))
@@ -61,7 +76,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         tv.setOnClickListener {
             onChangeIConTo1111()
-            newsVm.plusTime()
+            launch {
+                newsVm.plusTime()
+            }
             Toast.makeText(this, "jjj", Toast.LENGTH_SHORT).show()
         }
         bt_next.setOnClickListener {
@@ -131,7 +148,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         ev.hint = getViewId(ev)
         tv.text = word
 
-//        比对性能
+//        比对性能（协程明显会更快）
 //        val start = System.currentTimeMillis()
 //        runBlocking {
 //            repeat(100000) {
@@ -143,14 +160,14 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 //        }
 //        val end = System.currentTimeMillis()
 //        println((end - start).toString() + "time")
-//
+//        val start1 = System.currentTimeMillis()
 //        thread {
 //            repeat(100000) {
 //                println(it)
 //            }
 //        }
 //        val end1 = System.currentTimeMillis()
-//        println((end1 - start).toString() + "hhhh")
+//        println((end1 - start1).toString() + "hhhh")
 
 
         GlobalScope.launch(Dispatchers.Default) {
@@ -175,7 +192,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     override fun onDestroy() {
         println("is destory")
         super.onDestroy()
-        //cancel 协程
+        //cancel 协程（每个act单独具有这个，可以使用在base？）
         cancel()
     }
 
@@ -213,6 +230,38 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         )
     }
 
+
+    //动态注册
+    private fun initShortCut() {
+        val dynamicSC = ArrayList<ShortcutInfo>()
+        for (index in 0..mSystemService.maxShortcutCountPerActivity - 1) {
+            val intent: Intent = Intent(this, MotionLayoutActivity::class.java)
+            intent.setAction(Intent.ACTION_VIEW)
+            val info: ShortcutInfo = ShortcutInfo.Builder(this, "id" + index)
+                .setShortLabel(mTitle.get(index))//设置短标题
+                .setLongLabel("功能:" + mTitle.get(index))//设置长标题
+                .setIcon(Icon.createWithResource(this, R.drawable.ic_launcher_background))//设置图标
+                .setIntent(intent)//设置intent
+                .build();
+            if (index < 3) {
+                dynamicSC.add(info)
+            }
+        }
+        mSystemService.dynamicShortcuts = dynamicSC
+    }
+
+    //动态更新
+    private fun updateShortCut(id: Int) {
+        val intent = Intent(this, MotionLayoutActivity::class.java)
+        intent.setAction(Intent.ACTION_VIEW)
+        val info: ShortcutInfo = ShortcutInfo.Builder(this, "id" + id)
+            .setShortLabel("已修改")//设置短标题
+            .setLongLabel("功能:已修改修改")//设置长标题
+            .setIcon(Icon.createWithResource(this, R.mipmap.ic_launcher))//设置图标
+            .setIntent(intent)
+            .build();
+        mSystemService.updateShortcuts(listOf(info))
+    }
 }
 
 

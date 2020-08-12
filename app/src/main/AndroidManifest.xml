@@ -9,13 +9,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MotionLayoutActivity"></activity>
+        <activity android:name=".MotionLayoutActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!--            静态注册-->
+                        <meta-data android:name="android.app.shortcuts" android:resource="@xml/short_cuts" />
         </activity>
 
         <activity-alias
@@ -37,7 +39,6 @@
                 <action android:name="com.text.getdata.data" />
             </intent-filter>
         </service>
-
     </application>
 
 </manifest>
