@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         mTitle.add("3")
         mTitle.add("4")
         mTitle.add("5")
-        //最大5个，默认显示4个
+        //最大根据手机不同，redmi note5个，xiaomi多于5个 ，默认显示4个
         initShortCut()
 
         var packageName = packageName
@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         val userDao = UserDataBase.getDatabase(this).userDao();
         val user1 = User("liu", "shushu", 22)
         val user2 = User("zhuang", "dandan", 22)
-
 
         //不可新建，viewModel拥有独立的生命周期
         sp = getPreferences(Context.MODE_PRIVATE)
@@ -234,7 +233,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     //动态注册
     private fun initShortCut() {
         val dynamicSC = ArrayList<ShortcutInfo>()
-        for (index in 0..mSystemService.maxShortcutCountPerActivity - 1) {
+        //加上静态一共支持看系统，不一定，但只显示4个
+        for (index in 0 until 3) {
             val intent: Intent = Intent(this, MotionLayoutActivity::class.java)
             intent.setAction(Intent.ACTION_VIEW)
             val info: ShortcutInfo = ShortcutInfo.Builder(this, "id" + index)
@@ -246,6 +246,20 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             if (index < 3) {
                 dynamicSC.add(info)
             }
+            val request = OneTimeWorkRequest.Builder(SimpleWorker::class.java)
+                .addTag("simple")
+                //??不能小于10s
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+                .build()
+            WorkManager.getInstance(this).enqueue(request)
+            WorkManager.getInstance(this).getWorkInfoByIdLiveData(request.id)
+                .observe(this) { workInfo ->
+                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                        Log.d("MainActivity", "do work success")
+                    } else if (workInfo.state == WorkInfo.State.FAILED) {
+                        Log.d("MainActivity", "do work failed")
+                    }
+                }
         }
         mSystemService.dynamicShortcuts = dynamicSC
     }
