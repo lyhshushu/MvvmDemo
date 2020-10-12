@@ -39,6 +39,10 @@ class MotionLayoutActivity : AppCompatActivity() {
             }
             dataTv.text = sb
         }
+        nextActivity.setOnClickListener{
+            var intent: Intent = Intent(this, ViewPage2Activity::class.java)
+            startActivity(intent);
+        }
     }
 
     override fun onStart() {

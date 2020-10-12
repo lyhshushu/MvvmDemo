@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ViewPage2Activity"></activity>
         <activity android:name=".MotionLayoutActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -19,7 +20,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!--            静态注册-->
+            <!-- 静态注册 -->
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/short_cuts" />
@@ -33,9 +34,11 @@
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+
         <service
             android:name=".aidlinterface.MyService"
             android:enabled="true"
