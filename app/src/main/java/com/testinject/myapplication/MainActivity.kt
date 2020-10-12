@@ -1,5 +1,6 @@
 package com.testinject.myapplication
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -13,6 +14,8 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
@@ -25,6 +28,7 @@ import com.testinject.myapplication.workmanager.SimpleWorker
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 
 //全局
 const val word: String = "all place use"
@@ -47,6 +51,17 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CALL_PHONE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), 1)
+        }
+
+
+
         mSystemService = getSystemService(ShortcutManager::class.java)
         mTitle.add("1")
         mTitle.add("2")
@@ -75,6 +90,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         tv.setOnClickListener {
             onChangeIConTo1111()
+            thread {
+
+            }
             launch {
                 newsVm.plusTime()
             }
@@ -171,6 +189,22 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         GlobalScope.launch(Dispatchers.Default) {
             Log.d("MainActivity", Thread.currentThread().name)
+        }
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            1 -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "开启权限", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "拒绝权限", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

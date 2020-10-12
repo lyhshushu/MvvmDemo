@@ -27,12 +27,12 @@ class MotionLayoutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_motion)
         addDataBtn.setOnClickListener {
-            data!!.setData("data" + i)
+//            data!!.setData("data" + i)
             i++
         }
         hookOnClickListener(addDataBtn)
         loadDataBtn.setOnClickListener {
-            list = data!!.data as ArrayList<String>
+//            list = data!!.data as ArrayList<String>
             var sb = StringBuffer()
             for (d in list) {
                 sb.append(d).append("\n")

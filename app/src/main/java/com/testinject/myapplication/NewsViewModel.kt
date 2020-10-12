@@ -13,7 +13,10 @@ class NewsViewModel(timeCount: Int, saveNetString: String) : ViewModel() {
     private val viewModelJob = SupervisorJob()
     private val uiScope = CoroutineScope(Dispatchers.IO + viewModelJob)
 
+
     //第一次get之前执行，可添加操作
+    //延迟初始化，调用时初始化
+//    private val mModel = NewsModel()
     private val mModel by lazy {
         NewsModel()
     }
